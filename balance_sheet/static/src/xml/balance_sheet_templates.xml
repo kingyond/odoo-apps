@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="balance_sheet.balance_sheet_view_template" owl="1">
+        <div class="balance-sheet-container">
+            <div class="balance-sheet-header">
+                <div class="balance-sheet-controls">
+                    <div class="export-buttons">
+                        <button class="btn-export btn-pdf" t-on-click="exportPDF">PDF</button>
+                        <button class="btn-export btn-xlsx" t-on-click="exportXLSX">XLSX</button>
+                    </div>
+                    
+                    <div>
+                        <label>时间结尾：</label>
+                        <select t-on-change="onPeriodChange">
+                            <option t-foreach="state.periodOptions" t-as="option" t-key="option.value" 
+                                    t-att-value="option.value" t-esc="option.label"/>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label>
+                            <input type="checkbox" t-on-change="onComparisonModeChange" 
+                                   t-att-checked="state.options.comparison_mode"/> 比较
+                        </label>
+                    </div>
+                    
+                    <div t-if="state.options.comparison_mode">
+                        <label>比较日期：</label>
+                        <input type="date" t-on-change="onComparisonDateChange" 
+                               t-att-value="state.options.comparison_date_to"/>
+                    </div>
+                    
+                    <div>
+                        <div class="dropdown journal-dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <t t-esc="getSelectedJournalsText()"/>
+                            </button>
+                            <ul class="dropdown-menu journal-menu">
+                                <li>
+                                    <a class="dropdown-item" href="#" t-on-click="() => this.selectAllJournals()">
+                                        所有日记账
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"/></li>
+                                <t t-foreach="state.journals" t-as="journal" t-key="journal.id">
+                                    <li>
+                                        <a class="dropdown-item" href="#" t-on-click="() => this.toggleJournal(journal.id)">
+                                            <input type="checkbox" 
+                                                   t-att-checked="state.options.journal_ids.includes(journal.id)"
+                                                   t-on-click.stop="() => {}" />
+                                            <span t-esc="journal.name"/>
+                                        </a>
+                                    </li>
+                                </t>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="balance-sheet-content">
+                <div t-if="state.loading" class="loading-overlay">
+                    加载中...
+                </div>
+                
+                <div t-if="state.data" class="balance-sheet-wrapper">
+                    <table class="balance-sheet-table">
+                        <thead>
+                            <tr>
+                                <th colspan="2" style="text-align: center; font-size: 18px; position: relative;">
+                                    资产负债表
+                                    <span class="balance-sheet-date" t-esc="state.options.date_to"/>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th>科目</th>
+                                <th>金额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 资产部分 -->
+                            <tr class="section-header">
+                                <td>资产</td>
+                                <td class="amount-cell">
+                                    <span t-esc="formatCurrency(getTotalBalance(state.data.assets))"/>
+                                </td>
+                            </tr>
+                            <tr t-foreach="state.data.assets" t-as="account" t-key="account.id" class="account-row">
+                                <td t-esc="account.name"/>
+                                <td class="amount-cell" t-esc="formatCurrency(account.balance)"/>
+                            </tr>
+                            
+                            <!-- 负债部分 -->
+                            <tr class="section-header">
+                                <td>负债</td>
+                                <td class="amount-cell">
+                                    <span t-esc="formatCurrency(getTotalBalance(state.data.liabilities))"/>
+                                </td>
+                            </tr>
+                            <tr t-foreach="state.data.liabilities" t-as="account" t-key="account.id" class="account-row">
+                                <td t-esc="account.name"/>
+                                <td class="amount-cell" t-esc="formatCurrency(account.balance)"/>
+                            </tr>
+                            
+                            <!-- 权益部分 -->
+                            <tr class="section-header">
+                                <td>所有者权益</td>
+                                <td class="amount-cell">
+                                    <span t-esc="formatCurrency(getTotalBalance(state.data.equity))"/>
+                                </td>
+                            </tr>
+                            <tr t-foreach="state.data.equity" t-as="account" t-key="account.id" class="account-row">
+                                <td t-esc="account.name"/>
+                                <td class="amount-cell" t-esc="formatCurrency(account.balance)"/>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

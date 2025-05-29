@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 创建报表报告父菜单 -->
+    <menuitem id="financial_reports_menu"
+              name="报表报告"
+              parent="account.menu_finance_reports"
+              sequence="10"/>
+    
+    <!-- 资产负债表菜单 -->
+    <menuitem id="balance_sheet_menu"
+              name="资产负债表"
+              parent="financial_reports_menu"
+              action="balance_sheet_action"
+              sequence="10"/>
+</odoo>
