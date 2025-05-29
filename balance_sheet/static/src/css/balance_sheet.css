@@ -198,6 +198,70 @@
     margin-right: 8px;
 }
 
+.date-dropdown {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.date-menu {
+    min-width: 200px;
+}
+
+.date-nav-container {
+    padding: 0;
+}
+
+.date-nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.5rem 1rem;
+}
+
+.btn-nav {
+    cursor: pointer;
+    padding: 5px 10px;
+    color: #007bff;
+    display: inline-block;
+    z-index: 10;
+}
+
+.btn-nav:hover {
+    color: #0056b3;
+    background-color: #f8f9fa;
+    border-radius: 3px;
+}
+
+.date-label {
+    flex-grow: 1;
+    text-align: center;
+    cursor: pointer;
+    z-index: 5;
+}
+
+.date-label:hover {
+    text-decoration: underline;
+}
+
+/* 防止点击冒泡关闭下拉框 */
+.dropdown-item:active, .dropdown-item:focus {
+    background-color: transparent;
+}
+
+.custom-date-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.5rem 1rem;
+}
+
+.custom-date-input input {
+    padding: 2px 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
 @media (max-width: 1200px) {
     .balance-sheet-comparison {
         flex-direction: column;

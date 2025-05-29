@@ -9,12 +9,73 @@
                         <button class="btn-export btn-xlsx" t-on-click="exportXLSX">XLSX</button>
                     </div>
                     
-                    <div>
-                        <label>时间结尾：</label>
-                        <select t-on-change="onPeriodChange">
-                            <option t-foreach="state.periodOptions" t-as="option" t-key="option.value" 
-                                    t-att-value="option.value" t-esc="option.label"/>
-                        </select>
+                    <div class="date-selector">
+                        <div class="dropdown date-dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                                <t t-esc="getDateDisplayText()"/>
+                            </button>
+                            <ul class="dropdown-menu date-menu">
+                                <li>
+                                    <a class="dropdown-item" href="#" t-on-click="() => this.selectDateOption('today')">
+                                        今天 (<t t-esc="formatSimpleDate(new Date())"/>)
+                                    </a>
+                                </li>
+                                <li>
+                                    <div class="dropdown-item date-nav-container">
+                                        <div class="date-nav-item">
+                                            <span class="btn-nav btn-nav-left" t-on-click.stop="(ev) => this.navigateDate('month', -1, ev)">
+                                                <i class="fa fa-chevron-left"/>
+                                            </span>
+                                            <span class="date-label" t-on-click="() => this.selectDateOption('month')">
+                                                月底 (<t t-esc="formatMonthYear(state.options.currentMonthEnd)"/>)
+                                            </span>
+                                            <span class="btn-nav btn-nav-right" t-on-click.stop="(ev) => this.navigateDate('month', 1, ev)">
+                                                <i class="fa fa-chevron-right"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="dropdown-item date-nav-container">
+                                        <div class="date-nav-item">
+                                            <span class="btn-nav btn-nav-left" t-on-click.stop="(ev) => this.navigateDate('quarter', -1, ev)">
+                                                <i class="fa fa-chevron-left"/>
+                                            </span>
+                                            <span class="date-label" t-on-click="() => this.selectDateOption('quarter')">
+                                                季尾 (<t t-esc="formatQuarter(state.options.currentQuarterEnd)"/>)
+                                            </span>
+                                            <span class="btn-nav btn-nav-right" t-on-click.stop="(ev) => this.navigateDate('quarter', 1, ev)">
+                                                <i class="fa fa-chevron-right"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="dropdown-item date-nav-container">
+                                        <div class="date-nav-item">
+                                            <span class="btn-nav btn-nav-left" t-on-click.stop="(ev) => this.navigateDate('year', -1, ev)">
+                                                <i class="fa fa-chevron-left"/>
+                                            </span>
+                                            <span class="date-label" t-on-click="() => this.selectDateOption('year')">
+                                                年底 (<t t-esc="state.options.currentYear"/>)
+                                            </span>
+                                            <span class="btn-nav btn-nav-right" t-on-click.stop="(ev) => this.navigateDate('year', 1, ev)">
+                                                <i class="fa fa-chevron-right"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="dropdown-item date-nav-container">
+                                        <div class="custom-date-input">
+                                            <span>自定义:</span>
+                                            <input type="date" t-att-value="state.options.date_to" 
+                                                   t-on-change.stop="onCustomDateChange"/>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                     
                     <div>
