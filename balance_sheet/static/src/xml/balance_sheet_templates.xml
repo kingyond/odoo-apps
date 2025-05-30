@@ -121,13 +121,14 @@
                                 </div>
                             </li>
                             <li>
-                                <a class="dropdown-item custom-date-item" href="#" t-on-click="() => this.selectComparisonOption('custom')">
-                                    指定日期
+                                <div class="dropdown-item custom-date-item">
+                                    <span t-on-click="() => this.selectComparisonOption('custom')">指定日期</span>
                                     <div class="custom-comparison-date" t-if="state.options.comparisonOption === 'custom'">
                                         <input type="date" t-att-value="state.options.comparison_date_to" 
-                                               t-on-change="onComparisonDateChange"/>
+                                               t-on-change.stop="onComparisonDateChange"
+                                               t-on-click.stop="() => {}"/>
                                     </div>
-                                </a>
+                                </div>
                             </li>
                         </ul>
                     </div>
@@ -169,14 +170,32 @@
                     <table class="balance-sheet-table">
                         <thead>
                             <tr>
-                                <th colspan="2" style="text-align: center; font-size: 18px; position: relative;">
+                                <th style="text-align: center; font-size: 18px;">
                                     资产负债表
-                                    <span class="balance-sheet-date" t-esc="state.options.date_to"/>
                                 </th>
+                                <th>
+                                    <div class="balance-column-header">
+                                        <div class="date-header" t-esc="state.options.date_to"/>
+                                    </div>
+                                </th>
+                                <!-- 比较列 -->
+                                <t t-if="state.data.comparisons and state.data.comparisons.length > 0">
+                                    <th t-foreach="state.data.comparisons" t-as="comparison" t-key="comparison_index">
+                                        <div class="balance-column-header">
+                                            <div class="date-header" t-esc="comparison.date_to"/>
+                                        </div>
+                                    </th>
+                                </t>
                             </tr>
                             <tr>
                                 <th>科目</th>
-                                <th>金额</th>
+                                <th>余额</th>
+                                <!-- 比较列的余额标题 -->
+                                <t t-if="state.data.comparisons and state.data.comparisons.length > 0">
+                                    <th t-foreach="state.data.comparisons" t-as="comparison" t-key="comparison_index">
+                                        余额
+                                    </th>
+                                </t>
                             </tr>
                         </thead>
                         <tbody>
@@ -186,10 +205,23 @@
                                 <td class="amount-cell">
                                     <span t-esc="formatCurrency(getTotalBalance(state.data.assets))"/>
                                 </td>
+                                <!-- 比较列 -->
+                                <t t-if="state.data.comparisons and state.data.comparisons.length > 0">
+                                    <td t-foreach="state.data.comparisons" t-as="comparison" t-key="comparison_index" class="amount-cell">
+                                        <span t-esc="formatCurrency(getTotalBalance(comparison.assets))"/>
+                                    </td>
+                                </t>
                             </tr>
                             <tr t-foreach="state.data.assets" t-as="account" t-key="account.id" class="account-row">
                                 <td t-esc="account.name"/>
                                 <td class="amount-cell" t-esc="formatCurrency(account.balance)"/>
+                                <!-- 比较列的账户余额 -->
+                                <t t-if="state.data.comparisons and state.data.comparisons.length > 0">
+                                    <td t-foreach="state.data.comparisons" t-as="comparison" t-key="comparison_index" class="amount-cell">
+                                        <t t-set="compAccount" t-value="findAccountById(comparison.assets, account.id)"/>
+                                        <span t-esc="formatCurrency(compAccount ? compAccount.balance : 0)"/>
+                                    </td>
+                                </t>
                             </tr>
                             
                             <!-- 负债部分 -->
@@ -198,10 +230,23 @@
                                 <td class="amount-cell">
                                     <span t-esc="formatCurrency(getTotalBalance(state.data.liabilities))"/>
                                 </td>
+                                <!-- 比较列 -->
+                                <t t-if="state.data.comparisons and state.data.comparisons.length > 0">
+                                    <td t-foreach="state.data.comparisons" t-as="comparison" t-key="comparison_index" class="amount-cell">
+                                        <span t-esc="formatCurrency(getTotalBalance(comparison.liabilities))"/>
+                                    </td>
+                                </t>
                             </tr>
                             <tr t-foreach="state.data.liabilities" t-as="account" t-key="account.id" class="account-row">
                                 <td t-esc="account.name"/>
                                 <td class="amount-cell" t-esc="formatCurrency(account.balance)"/>
+                                <!-- 比较列的账户余额 -->
+                                <t t-if="state.data.comparisons and state.data.comparisons.length > 0">
+                                    <td t-foreach="state.data.comparisons" t-as="comparison" t-key="comparison_index" class="amount-cell">
+                                        <t t-set="compAccount" t-value="findAccountById(comparison.liabilities, account.id)"/>
+                                        <span t-esc="formatCurrency(compAccount ? compAccount.balance : 0)"/>
+                                    </td>
+                                </t>
                             </tr>
                             
                             <!-- 权益部分 -->
@@ -210,10 +255,23 @@
                                 <td class="amount-cell">
                                     <span t-esc="formatCurrency(getTotalBalance(state.data.equity))"/>
                                 </td>
+                                <!-- 比较列 -->
+                                <t t-if="state.data.comparisons and state.data.comparisons.length > 0">
+                                    <td t-foreach="state.data.comparisons" t-as="comparison" t-key="comparison_index" class="amount-cell">
+                                        <span t-esc="formatCurrency(getTotalBalance(comparison.equity))"/>
+                                    </td>
+                                </t>
                             </tr>
                             <tr t-foreach="state.data.equity" t-as="account" t-key="account.id" class="account-row">
                                 <td t-esc="account.name"/>
                                 <td class="amount-cell" t-esc="formatCurrency(account.balance)"/>
+                                <!-- 比较列的账户余额 -->
+                                <t t-if="state.data.comparisons and state.data.comparisons.length > 0">
+                                    <td t-foreach="state.data.comparisons" t-as="comparison" t-key="comparison_index" class="amount-cell">
+                                        <t t-set="compAccount" t-value="findAccountById(comparison.equity, account.id)"/>
+                                        <span t-esc="formatCurrency(compAccount ? compAccount.balance : 0)"/>
+                                    </td>
+                                </t>
                             </tr>
                         </tbody>
                     </table>

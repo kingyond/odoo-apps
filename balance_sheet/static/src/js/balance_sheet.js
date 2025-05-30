@@ -561,6 +561,26 @@ class BalanceSheetView extends Component {
         const [year, month, day] = dateStr.split('-').map(Number);
         return new Date(year, month - 1, day);
     }
+
+    // 添加查找账户的辅助函数
+    findAccountById(accounts, accountId) {
+        if (!accounts || !Array.isArray(accounts)) {
+            return null;
+        }
+        return accounts.find(account => account.id === accountId);
+    }
+
+    onComparisonDateChange(event) {
+        // 阻止事件冒泡，避免关闭下拉框
+        event.stopPropagation();
+        
+        this.state.options.comparison_date_to = event.target.value;
+        this.state.options.comparisonDates = [this.state.options.comparison_date_to];
+        this.loadBalanceSheet();
+        
+        // 不自动关闭下拉框
+        return false;
+    }
 }
 
 registry.category("actions").add("balance_sheet_view", BalanceSheetView);
