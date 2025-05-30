@@ -78,17 +78,58 @@
                         </div>
                     </div>
                     
-                    <div>
-                        <label>
-                            <input type="checkbox" t-on-change="onComparisonModeChange" 
-                                   t-att-checked="state.options.comparison_mode"/> 比较
-                        </label>
-                    </div>
-                    
-                    <div t-if="state.options.comparison_mode">
-                        <label>比较日期：</label>
-                        <input type="date" t-on-change="onComparisonDateChange" 
-                               t-att-value="state.options.comparison_date_to"/>
+                    <div class="dropdown comparison-dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <t t-esc="getComparisonDisplayText()"/>
+                        </button>
+                        <ul class="dropdown-menu comparison-menu">
+                            <li>
+                                <a class="dropdown-item" href="#" t-on-click="() => this.selectComparisonOption('none')">
+                                    无比较
+                                </a>
+                            </li>
+                            <li>
+                                <div class="dropdown-item period-selection-item" t-on-click="() => this.selectComparisonOption('previous')">
+                                    <div class="period-input">
+                                        <span>前一期间</span>
+                                        <div class="number-input">
+                                            <input type="number" min="1" max="12" t-att-value="state.options.previousPeriodCount || 1" 
+                                                   t-on-input="onPreviousPeriodCountChange" t-on-click.stop="() => {}"/>
+                                            <div class="number-arrows">
+                                                <div class="arrow-up" t-on-click.stop="() => this.adjustPeriodCount('previous', 1)">▲</div>
+                                                <div class="arrow-down" t-on-click.stop="() => this.adjustPeriodCount('previous', -1)">▼</div>
+                                            </div>
+                                        </div>
+                                        <span>期间</span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="dropdown-item period-selection-item" t-on-click="() => this.selectComparisonOption('previous_year')">
+                                    <div class="period-input">
+                                        <span>同上年</span>
+                                        <div class="number-input">
+                                            <input type="number" min="1" max="5" t-att-value="state.options.previousYearCount || 1" 
+                                                   t-on-input="onPreviousYearCountChange" t-on-click.stop="() => {}"/>
+                                            <div class="number-arrows">
+                                                <div class="arrow-up" t-on-click.stop="() => this.adjustPeriodCount('previous_year', 1)">▲</div>
+                                                <div class="arrow-down" t-on-click.stop="() => this.adjustPeriodCount('previous_year', -1)">▼</div>
+                                            </div>
+                                        </div>
+                                        <span>年</span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <a class="dropdown-item custom-date-item" href="#" t-on-click="() => this.selectComparisonOption('custom')">
+                                    指定日期
+                                    <div class="custom-comparison-date" t-if="state.options.comparisonOption === 'custom'">
+                                        <input type="date" t-att-value="state.options.comparison_date_to" 
+                                               t-on-change="onComparisonDateChange"/>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                     
                     <div>

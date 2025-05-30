@@ -262,6 +262,98 @@
     border-radius: 3px;
 }
 
+.comparison-dropdown {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.comparison-menu {
+    min-width: 220px;
+}
+
+.period-selection {
+    padding: 10px;
+    margin-top: 5px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.custom-comparison-date {
+    margin-top: 10px;
+    padding: 5px;
+}
+
+.custom-date-item {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.period-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.number-input {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+}
+
+.number-input input[type="number"] {
+    width: 100%;
+    padding: 4px;
+    text-align: center;
+}
+
+.number-input input[type="number"]::-webkit-inner-spin-button, 
+.number-input input[type="number"]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.number-arrows {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    width: 16px;
+    border-left: 1px solid #ccc;
+}
+
+.arrow-up, .arrow-down {
+    height: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 8px;
+    user-select: none;
+}
+
+.arrow-up:hover, .arrow-down:hover {
+    background-color: #e9ecef;
+}
+
+.arrow-up {
+    border-bottom: 1px solid #ccc;
+}
+
+.period-selection-item {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.period-selection-item:hover {
+    background-color: #f8f9fa;
+}
+
+.period-selection-item.active {
+    background-color: #e9ecef;
+}
+
 @media (max-width: 1200px) {
     .balance-sheet-comparison {
         flex-direction: column;

@@ -30,7 +30,11 @@ class BalanceSheetView extends Component {
                 comparison_date_to: null,
                 journal_ids: [],
                 comparison_mode: false,
+                comparisonOption: 'none', // 'none', 'previous', 'previous_year', 'custom'
+                comparisonDates: [], // 存储所有比较日期
                 company_id: this.company?.currentCompany?.id,
+                previousPeriodCount: 1,
+                previousYearCount: 1,
             },
             periodOptions: [
                 { value: 'today', label: '今天' },
@@ -130,9 +134,170 @@ class BalanceSheetView extends Component {
         this.loadBalanceSheet();
     }
 
-    onComparisonDateChange(event) {
-        this.state.options.comparison_date_to = event.target.value;
+    // 选择比较选项
+    selectComparisonOption(option) {
+        this.state.options.comparisonOption = option;
+        this.state.options.comparison_mode = option !== 'none';
+        
+        // 添加样式高亮
+        document.querySelectorAll('.period-selection-item').forEach(el => {
+            el.classList.remove('active');
+        });
+        
+        if (option === 'previous' || option === 'previous_year') {
+            const selector = `.period-selection-item[t-on-click*="selectComparisonOption('${option}')"]`;
+            const element = document.querySelector(selector);
+            if (element) {
+                element.classList.add('active');
+            }
+        }
+        
+        // 重置比较数据
+        if (option === 'none') {
+            this.state.options.comparisonDates = [];
+        } else if (option === 'previous') {
+            this.updatePreviousPeriodDates();
+        } else if (option === 'previous_year') {
+            this.updatePreviousYearDates();
+        } else if (option === 'custom') {
+            // 默认选择当前日期前一年
+            if (!this.state.options.comparison_date_to) {
+                const currentDate = new Date(this.state.options.date_to);
+                currentDate.setFullYear(currentDate.getFullYear() - 1);
+                this.state.options.comparison_date_to = this.formatDateToYYYYMMDD(currentDate);
+                this.state.options.comparisonDates = [this.state.options.comparison_date_to];
+            } else {
+                this.state.options.comparisonDates = [this.state.options.comparison_date_to];
+            }
+        }
+        
         this.loadBalanceSheet();
+    }
+
+    // 处理期间数量变更
+    onPreviousPeriodCountChange(event) {
+        const count = parseInt(event.target.value);
+        if (!isNaN(count) && count > 0) {
+            this.state.options.previousPeriodCount = count;
+            this.updatePreviousPeriodDates();
+            this.loadBalanceSheet();
+        }
+    }
+
+    // 处理年数量变更
+    onPreviousYearCountChange(event) {
+        const count = parseInt(event.target.value);
+        if (!isNaN(count) && count > 0) {
+            this.state.options.previousYearCount = count;
+            this.updatePreviousYearDates();
+            this.loadBalanceSheet();
+        }
+    }
+
+    // 使用箭头调整期间数量
+    adjustPeriodCount(type, change) {
+        if (type === 'previous') {
+            const newCount = (this.state.options.previousPeriodCount || 1) + change;
+            if (newCount >= 1 && newCount <= 12) {
+                this.state.options.previousPeriodCount = newCount;
+                this.updatePreviousPeriodDates();
+                this.loadBalanceSheet();
+            }
+        } else if (type === 'previous_year') {
+            const newCount = (this.state.options.previousYearCount || 1) + change;
+            if (newCount >= 1 && newCount <= 5) {
+                this.state.options.previousYearCount = newCount;
+                this.updatePreviousYearDates();
+                this.loadBalanceSheet();
+            }
+        }
+    }
+
+    // 更新前一期间比较日期
+    updatePreviousPeriodDates() {
+        this.state.options.comparisonDates = [];
+        const count = this.state.options.previousPeriodCount || 1;
+        
+        // 根据当前日期和期间数量计算比较日期
+        for (let i = 1; i <= count; i++) {
+            let comparisonDate;
+            
+            switch(this.state.options.currentDateOption) {
+                case 'today':
+                    comparisonDate = new Date(this.state.options.date_to);
+                    comparisonDate.setDate(comparisonDate.getDate() - 30 * i); // 大约一个月
+                    break;
+                case 'month':
+                    comparisonDate = new Date(this.state.options.currentMonthEnd);
+                    comparisonDate.setMonth(comparisonDate.getMonth() - i);
+                    comparisonDate = new Date(comparisonDate.getFullYear(), comparisonDate.getMonth() + 1, 0); // 月末
+                    break;
+                case 'quarter':
+                    comparisonDate = new Date(this.state.options.currentQuarterEnd);
+                    comparisonDate.setMonth(comparisonDate.getMonth() - i * 3);
+                    const quarterMonth = Math.floor(comparisonDate.getMonth() / 3) * 3 + 2;
+                    comparisonDate = new Date(comparisonDate.getFullYear(), quarterMonth + 1, 0);
+                    break;
+                case 'year':
+                    comparisonDate = new Date(this.state.options.currentYear - i, 11, 31);
+                    break;
+                default:
+                    comparisonDate = new Date(this.state.options.date_to);
+                    comparisonDate.setDate(comparisonDate.getDate() - 30 * i);
+            }
+            
+            this.state.options.comparisonDates.push(this.formatDateToYYYYMMDD(comparisonDate));
+        }
+    }
+
+    // 更新前一年比较日期
+    updatePreviousYearDates() {
+        this.state.options.comparisonDates = [];
+        const count = this.state.options.previousYearCount || 1;
+        
+        // 根据当前日期和年数计算比较日期
+        for (let i = 1; i <= count; i++) {
+            let comparisonDate;
+            
+            switch(this.state.options.currentDateOption) {
+                case 'today':
+                case 'custom':
+                    comparisonDate = new Date(this.state.options.date_to);
+                    comparisonDate.setFullYear(comparisonDate.getFullYear() - i);
+                    break;
+                case 'month':
+                    comparisonDate = new Date(this.state.options.currentMonthEnd);
+                    comparisonDate.setFullYear(comparisonDate.getFullYear() - i);
+                    comparisonDate = new Date(comparisonDate.getFullYear(), comparisonDate.getMonth() + 1, 0);
+                    break;
+                case 'quarter':
+                    comparisonDate = new Date(this.state.options.currentQuarterEnd);
+                    comparisonDate.setFullYear(comparisonDate.getFullYear() - i);
+                    break;
+                case 'year':
+                    comparisonDate = new Date(this.state.options.currentYear - i, 11, 31);
+                    break;
+            }
+            
+            this.state.options.comparisonDates.push(this.formatDateToYYYYMMDD(comparisonDate));
+        }
+    }
+
+    getComparisonDisplayText() {
+        switch(this.state.options.comparisonOption) {
+            case 'none':
+                return '无比较';
+            case 'previous':
+                const periodCount = this.state.options.previousPeriodCount || 1;
+                return `前一期间 (${periodCount} 期)`;
+            case 'previous_year':
+                const yearCount = this.state.options.previousYearCount || 1;
+                return `同上年期间 (${yearCount} 年)`;
+            case 'custom':
+                return `指定日期 (${this.state.options.comparison_date_to || '未选择'})`;
+            default:
+                return '选择比较方式';
+        }
     }
 
     onJournalChange(event) {

@@ -35,14 +35,20 @@ class BalanceSheetReport(models.TransientModel):
             'company_name': report_model.env.company.name,
         }
         
-        if comparison_date_to:
-            comparison_accounts = report_model._get_accounts_data(comparison_date_to, journal_ids)
-            result['comparison'] = {
-                'assets': report_model._get_assets_data(comparison_accounts, comparison_date_to),
-                'liabilities': report_model._get_liabilities_data(comparison_accounts, comparison_date_to),
-                'equity': report_model._get_equity_data(comparison_accounts, comparison_date_to),
-                'date_to': comparison_date_to,
-            }
+        # 处理多期间比较
+        comparison_dates = options.get('comparisonDates', [])
+        if comparison_dates:
+            result['comparisons'] = []
+            
+            for comparison_date in comparison_dates:
+                comparison_accounts = report_model._get_accounts_data(comparison_date, journal_ids)
+                comparison_data = {
+                    'assets': report_model._get_assets_data(comparison_accounts, comparison_date),
+                    'liabilities': report_model._get_liabilities_data(comparison_accounts, comparison_date),
+                    'equity': report_model._get_equity_data(comparison_accounts, comparison_date),
+                    'date_to': comparison_date,
+                }
+                result['comparisons'].append(comparison_data)
         
         return result
 
